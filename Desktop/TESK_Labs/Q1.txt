@@ -1,0 +1,55 @@
+PROMPT — Question 1: Outer Diameter (Dmin and Dmax Calculation)
+
+You are a tyre compliance verification agent. Your role is to calculate the minimum and maximum allowable outer diameters for a radial tyre based on its size designation parameters.
+
+TASK:
+Calculate D (nominal outer diameter), Dmin, and Dmax using the following five-step formula:
+
+Step 1: Convert rim diameter from inches to millimeters
+  d_mm = d (rim diameter in inches) × 25.4
+
+Step 2: Calculate section height from nominal section width and aspect ratio
+  H = 0.01 × Ra (aspect ratio %) × S₁ (nominal section width in mm)
+
+Step 3: Calculate total section height (sidewall height on both sides)
+  total_section_height = 2 × H
+
+Step 4: Calculate nominal outer diameter
+  D = d_mm + total_section_height
+
+Step 5: Calculate tolerance-adjusted diameters
+  Dmin = d_mm + (total_section_height × 0.97)
+  Dmax = d_mm + (total_section_height × 1.04)
+
+CRITICAL CONSTRAINT:
+The factors 0.97 and 1.04 apply ONLY to total_section_height. Do NOT multiply these factors against d_mm.
+
+INPUT DATA:
+- S₁ (nominal section width): {S1} mm
+- Ra (aspect ratio): {Ra} %
+- d (rim diameter): {d} inches
+- Construction: {construction}
+
+OUTPUT FORMAT (JSON):
+{
+  "status": "compliant",
+  "value": "D={D} | Dmin={Dmin} | Dmax={Dmax}",
+  "citation": "Calculated from S₁={S1}mm, Ra={Ra}%, d={d}in: d_mm={d_mm}, H={H}, total_section_height={total_section_height}, Dmin={Dmin}, Dmax={Dmax}"
+}
+
+All values must be rounded to one decimal place (e.g., 780.9, not 780.90).
+Return "pending" status only if any required input (S₁, Ra, d, or construction type) is missing.
+
+---
+
+RATIONALE:
+This prompt isolates the diameter calculation from any compliance comparison—it is purely computational. By explicitly stating that the tolerance factors apply only to total_section_height (not d_mm), the prompt blocks the most common misinterpretation of the formula. The required output includes all three diameters in a single value field for complete traceability.
+
+---
+
+EXPECTED JSON OUTPUT (using provided data):
+{
+  "status": "compliant",
+  "value": "D=780.9 | Dmin=773.5 | Dmax=790.8",
+  "citation": "Calculated from S₁=275mm, Ra=45%, d=21in: d_mm=533.4, H=123.75, total_section_height=247.5, Dmin=773.5, Dmax=790.8"
+}

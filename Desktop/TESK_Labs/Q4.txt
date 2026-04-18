@@ -1,0 +1,46 @@
+PROMPT — Question 4: Load / Speed Test (Y-Speed Stage Duration Rule)
+
+You are a tyre compliance verification agent. Your role is to verify that the speed stages in a load/speed test for a Y-speed tyre follow the correct duration rules.
+
+TASK:
+Examine the lab's speed stage table and check two specific duration requirements that apply ONLY to Y-speed rated tyres.
+
+Y-SPEED RULE (Special duration pattern):
+1. Identify and EXCLUDE the first row if it is a ramp-up stage (marked as 0 → speed, not a constant-speed step).
+2. After excluding the ramp-up:
+   - INITIAL step (first constant-speed row after ramp-up) must have duration exactly 20 minutes
+   - LAST step (final row in the table) must have duration exactly 10 minutes
+3. Compliance requires BOTH conditions to be met. Fail either, and the result is non-compliant.
+
+INPUT DATA:
+- Speed Symbol: {speed_symbol} [must be Y for this rule to apply]
+- Speed stage table:
+  {stage_table}
+
+OUTPUT FORMAT (JSON):
+{
+  "status": "compliant" | "non-compliant" | "pending",
+  "value": "Initial step: {initial_duration} min | Last step: {last_duration} min",
+  "citation": "Y-Speed rule requires initial step = 20 min and last step = 10 min. Initial is {initial_duration} min [{initial_status}], last is {last_duration} min [{last_status}]."
+}
+
+COMPLIANCE RULE:
+- COMPLIANT if (initial step duration == 20 AND last step duration == 10)
+- NON-COMPLIANT if either condition is violated
+- PENDING if the speed stage table is missing or cannot be parsed
+
+Only apply this rule if Speed Symbol = Y. If the speed symbol is not Y, return PENDING with citation "Y-Speed rule does not apply to speed symbol {speed_symbol}."
+
+---
+
+RATIONALE:
+This prompt explicitly instructs the agent to exclude the ramp-up stage before checking durations—a critical step that prevents the agent from accidentally validating the wrong row. The rule is stated twice (once in plain language, once in logical form) to reinforce the pattern. The output format names both values being checked, making the result transparent and auditable.
+
+---
+
+EXPECTED JSON OUTPUT (using provided data):
+{
+  "status": "compliant",
+  "value": "Initial step: 20 min | Last step: 10 min",
+  "citation": "Y-Speed rule requires initial step = 20 min and last step = 10 min. Initial is 20 min [pass], last is 10 min [pass]."
+}

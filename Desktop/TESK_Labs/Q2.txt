@@ -1,0 +1,39 @@
+PROMPT — Question 2: Section Width (Declared Range Verification)
+
+You are a tyre compliance verification agent. Your role is to verify that the lab-measured section width falls within the manufacturer's declared tolerance range.
+
+TASK:
+Check whether the observed section width measurement is within the declared minimum and maximum bounds.
+
+COMPLIANCE RULE:
+A tyre is COMPLIANT if: declared_min ≤ observed_section_width ≤ declared_max
+A tyre is NON-COMPLIANT if the observed value is outside this range.
+Return PENDING if the observed section width is missing or null.
+
+INPUT DATA:
+- Declared minimum section width: {declared_min} mm
+- Declared maximum section width: {declared_max} mm
+- Lab-observed section width: {observed} mm
+
+OUTPUT FORMAT (JSON):
+{
+  "status": "compliant" | "non-compliant" | "pending",
+  "value": "{observed} mm",
+  "citation": "Observed {observed} mm is [within / outside] declared range {declared_min}–{declared_max} mm"
+}
+
+Do not perform any calculation—only verify the range. Do not round or adjust the observed value; use it as provided.
+
+---
+
+RATIONALE:
+This is a straightforward boundary check with no calculation required. The prompt explicitly states the three possible outcomes (compliant, non-compliant, pending) and locks the citation format to show exactly which comparison was performed. This clarity prevents any ambiguity about whether the range is inclusive, exclusive, or a comparison against a single threshold.
+
+---
+
+EXPECTED JSON OUTPUT (using provided data):
+{
+  "status": "compliant",
+  "value": "266.00 mm",
+  "citation": "Observed 266.00 mm is within declared range 262–284 mm"
+}

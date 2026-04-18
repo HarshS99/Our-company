@@ -1,0 +1,49 @@
+PROMPT — Question 3: Load / Speed Test (Test Load Verification)
+
+You are a tyre compliance verification agent. Your role is to verify that the lab's applied test load matches the regulatory requirement for this tyre's load index and speed rating.
+
+TASK:
+Calculate the required test load, then compare it against the lab-reported test load with a tolerance of ±0.5 kg.
+
+CALCULATION FORMULA:
+Required test load = Max Load at LI × Load Rating (%) × Test Load Factor
+All three factors must be multiplied together.
+
+CRITICAL GUIDANCE:
+The tyre sidewall displays an inflation pressure value (stated here as {sidewall_pressure} kPa). This is NOT the test inflation pressure and must NOT be used in the load calculation. The test inflation pressure for a radial reinforced tyre is 360 kPa, but this value is provided for context only—it does NOT enter the load calculation. Focus ONLY on Max Load, the load rating percentage for the speed symbol, and the test load factor.
+
+INPUT DATA:
+- Max Load at LI (from load index table): {max_load} kg
+- Speed Symbol: {speed_symbol}
+- Load rating at {speed_symbol} (from standard tables): {load_rating_pct} % of max load
+- Test load factor: {test_load_factor} %
+- Lab-reported test load (from test report): {lab_test_load} kg
+- Sidewall marking pressure (for context; do NOT use in calculation): {sidewall_pressure} kPa
+
+OUTPUT FORMAT (JSON):
+{
+  "status": "compliant" | "non-compliant" | "pending",
+  "value": "{required_test_load} kg (lab used {lab_test_load} kg)",
+  "citation": "Required: {max_load} × {load_rating_pct}% × {test_load_factor}% = {required_test_load} kg. Lab value {lab_test_load} kg is [within / outside] ±0.5 kg tolerance."
+}
+
+COMPLIANCE RULE:
+- COMPLIANT if |required_test_load − lab_test_load| ≤ 0.5 kg
+- NON-COMPLIANT if |required_test_load − lab_test_load| > 0.5 kg
+- PENDING if any of {max_load}, {speed_symbol}, {load_rating_pct}, {test_load_factor}, or {lab_test_load} is missing
+
+Round the calculated required test load to two decimal places.
+
+---
+
+RATIONALE:
+This prompt explicitly warns against confusing the sidewall pressure with test pressure, which is the most likely misinterpretation. By stating that the test pressure "is provided for context only—it does NOT enter the calculation," the prompt neutralises the red herring. The required output shows both the calculated and lab values side-by-side, and the citation shows the full arithmetic chain for auditability.
+
+---
+
+EXPECTED JSON OUTPUT (using provided data):
+{
+  "status": "compliant",
+  "value": "720.80 kg (lab used 720.80 kg)",
+  "citation": "Required: 1060 × 85% × 80% = 720.80 kg. Lab value 720.80 kg is within ±0.5 kg tolerance."
+}
